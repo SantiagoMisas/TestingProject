@@ -1,10 +1,12 @@
 package com.example.TestingProject.services;
 
-import com.example.TestingProject.entities.RandomCode;
-import com.example.TestingProject.entities.ValidationCharacter;
+import com.example.TestingProject.entities.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.util.Scanner;
@@ -18,8 +20,41 @@ import java.util.regex.Pattern;
 @NoArgsConstructor
 public class ServiceValidationMethods {
 
-
 private int longitud;
+
+public String callEncryptted() throws Exception {
+    Scanner read=new Scanner(System.in);
+    System.out.println("Ingrese Contraseña: ");
+    String pw=format2(read.next());
+    ThreeDES threeDES=new ThreeDES();
+    threeDES.encrypt(pw);
+    System.out.println(pw);
+    return pw;
+}
+
+//Metodo para Recrear Formato Json Solicitado Se crean y modifican los DTO, y retornan objeto modificado de clase contenedora de las variables objetos
+public EntityToJsonFormat setJsonFormat(){
+    EntityToJsonFormat entityToJsonFormat=new EntityToJsonFormat();
+    Gson gson=new GsonBuilder().setPrettyPrinting().create();
+    J1 j1=new J1();
+    j1.setId("Espacio para coger el campo");
+    J2 j2=new J2();
+    j2.setName("Espacio para coger el campo");
+    entityToJsonFormat.setJ1(j1);
+    entityToJsonFormat.setJ2(j2);
+    String json=gson.toJson(entityToJsonFormat);
+
+    //Se realiza prueba imprimiendo en un archivo JSON en la carpeta target
+        /*
+        try
+            (PrintWriter print=new PrintWriter(("jsonTestRequest.json"))){
+            print.write(json);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+         */
+    return entityToJsonFormat;
+}
     public ValidationCharacter setInformation() {
         ValidationCharacter testObject = new ValidationCharacter();
 
@@ -39,7 +74,43 @@ private int longitud;
 
         return testObject;
     }
+    //Metodo para mappear un dto a otra clase usando Model Mapper
+    public Dto setDto(EntityForDTO entityForDTO){
+        ModelMapper modelMapper=new ModelMapper();
+        Dto dto=modelMapper.map(entityForDTO, Dto.class);
+        return dto;
+    }
+    //Lectura de cadena por posicion
+    public static  ReadingQrCode readByPosition (String string){
+        ReadingQrCode readingQrCode =new ReadingQrCode();
+        String firstPosition = string.substring(0, 15);
+        String secondPosition = string.substring(16, 31);
+        String thirdPosition = string.substring(32);
+        readingQrCode.setFirstPosition(firstPosition);
+        readingQrCode.setSecondPosition(secondPosition);
+        readingQrCode.setThirdPosition(thirdPosition);
 
+        return readingQrCode;
+    }
+    //Completar con ceros para el formato de password
+    public static String passwordFormat(String pw) {
+        int longitud = pw.length();
+        if (longitud < 24) {
+            return String.format("%s%0" + (24 - longitud) + "d", pw, 0);
+        } else {
+            return pw;
+        }
+    }
+
+    public static String format2(String pw) {
+        int length = pw.length();
+        int paddingLength = 24 - length;
+        StringBuilder sb = new StringBuilder(pw);
+        for (int i = 0; i < paddingLength; i++) {
+            sb.append('\0');
+        }
+        return sb.toString();
+    }
 
 
     public static boolean alphanumericValidation(String expression) {

@@ -17,10 +17,10 @@ import java.time.LocalDate;
 @CrossOrigin
 public class ControllerValidationMethods {
     @Autowired
-    private ServiceValidationMethods serviceValidationMethods;
+    ServiceValidationMethods serviceValidationMethods;
 
 
-    @GetMapping(path="/controller")
+    @GetMapping("/controller")
     public String setTest(){
 
       /* Scanner inputScanner = new Scanner(System.in);
